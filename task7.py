@@ -1,14 +1,10 @@
-#Данный код написан в предположении, что 
-#1. Музыканты быстрее понимают D-C, чем offset = -2
-#2. Аккорды бывают в двух видах:
-#  а. ПростоАккорд
-#  б. Аккорд/Аккорд
-#3. 
-#
-#
-#
-#
 
+#This cod was written in assumption that:
+#1. Musicians understand D-C rather than offset=-2
+#2. There two types of chords exist:
+#2a JustChord
+#2b chord/chord
+#
 
 
 
@@ -22,7 +18,7 @@ def calculate_offset(transponation_key, mode: str)->int:
     elif mode == 'b':
         chords = ["A", "Bb", "B", "C", "Db", "D", "Eb", "E", "F", "Gb", "G", "Ab",]
     else:
-        raise Exception("# -- диезы, b -- бемоли, иного не дано")
+        raise Exception("# -- sharp, b -- bemol, and only so")
     return chords.index(last) - chords.index(first)
 
 def transp_chord(chord, mode: str, offset: int)->str:
@@ -39,13 +35,6 @@ def transp_chord(chord, mode: str, offset: int)->str:
 
 
 #usage
-offset = calculate_offset("D-C", '#')
+offset = calculate_offset("D-A#", '#')
 print(offset)
 print(transp_chord("F/G", '#', offset))
-
-
-
-
-
-
-
