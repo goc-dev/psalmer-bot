@@ -1,4 +1,3 @@
-#-*- coding: cp1251 -*-
 import re
 import enum
 
@@ -38,7 +37,7 @@ def chords_up(s: str)->[]:
             s = s[:start + 1] + "-" * (end - start - 2) + s[end - 1:]
         while "+" in s:
             s = s.replace("+", " ")
-        #ýòî êîñòûëü
+        #It is a crutch
         if chords[0] == " " and s[0] == " ":
             chords = chords[1:]
             s = s[1:]
@@ -60,7 +59,7 @@ class PsalmType(enum.Enum):
     children = 1
 
 def isrussian(q):
-    return (q in "àáâãäå¸æçèéêëìíîïðñòóôõö÷øùúûüýþÿ")
+    return (q in "Ð°Ð±Ð²Ð³Ð´ÐµÑ‘Ð¶Ð·Ð¸Ð¹ÐºÐ»Ð¼Ð½Ð¾Ð¿Ñ€ÑÑ‚ÑƒÑ„Ñ…Ñ†Ñ‡ÑˆÑ‰ÑŠÑ‹ÑŒÑÑŽÑ")
 
 #Delete all, except russian letters, and changes all whiteSpace symbols to priors
 def rafinator(s: str)-> str:
@@ -299,7 +298,7 @@ ps = Psalm(1, T)
 
 collect = PsalmCollection()
 collect.try_to_add(ps)
-q = collect.first_letter_search("Á")
+q = collect.first_letter_search("Ð‘")
 for c in q:
     c.show()
 
