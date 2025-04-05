@@ -32,13 +32,12 @@ async def handle_command_psalm(message: Message) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
     s_answer = """
-**Title**: Есть победа
-
-_Вступление_: 
-```E/H H7 E A E```
-
-_Куплет_:
+Есть победа
+```Вступление:
+E/H H7 E A E
 ```
+
+```Куплет:
        A     G7     C#m
 Есть по|беда |для ме|ня,
        E     F#7    Hsus H7
@@ -49,8 +48,7 @@ _Куплет_:
 Есть по|беда |для ме|ня. |  |
 ```
 
-_Припев_:
-```
+```Припев:
    E   A/H  E        C#/D# G#7  C#m   E7  
 Мы |по-|--бе|дим, мы |по---|--бе|дим, |
      A     F#    E/H    C#7 F#m  E/H H7  E     A  E
