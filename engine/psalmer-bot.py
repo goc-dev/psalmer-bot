@@ -24,7 +24,8 @@ async def handle_command_start(message: Message) -> None:
     This handler receives messages with `/start` command
     """
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
-    await message.answer(f"Hello, **{message.from_user.full_name}**! Are you looking for some psalm/chords?")
+    tg_user_name = message.from_user.full_name
+    await message.answer(f"Hello, *{tg_user_name}*\!\nAre you looking for some psalm/chords?", parse_mode = "MarkdownV2")
 
 
 @router.message(Command(commands=["psalm"]))
@@ -32,7 +33,8 @@ async def handle_command_psalm(message: Message) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
     s_answer = """
-Есть победа
+*Есть победа*
+Тональность: `E`
 ```Вступление:
 E/H H7 E A E
 ```
