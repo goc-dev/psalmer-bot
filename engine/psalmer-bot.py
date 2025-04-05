@@ -29,6 +29,19 @@ async def command_start_handler(message: Message) -> None:
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     await message.answer(f"Hello, {html.bold(message.from_user.full_name)}! Are you looking for some psalm/chords?")
 
+@dp.message_handler(commands = ["psalm"])
+async def handle_command_psalm(message: Message) -> None:
+    """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
+
+    s_answer = """
+**WARNING**: This is stub (yet)
+
+```Some text, some text
+Next text, Next text
+```
+"""
+    message.reply(s_answer, parse_mode = "Markdown")
+
 
 @dp.message()
 async def echo_handler(message: Message) -> None:
