@@ -40,14 +40,20 @@ Next text, Next text
     message.reply(s_answer, parse_mode = "Markdown")
 
 
-@router.message(~Command())
-async def handle_message_and_echo(message: Message) -> None:
+@router.message()
+async def handle_non_command(message: Message) -> None:
     """
-    Handler will forward receive a message back to the sender
+    Handler of all non-command messages, it forward the received message back to the sender
 
     By default, message handler will handle all message types (like a text, photo, sticker etc.)
     """
-    await message.send_copy(chat_id=message.chat.id)
+    if not message.text or message.text.startswith("/"):
+        return  # Ignore commands or empty messages
+    try:
+        await message.send_copy(chat_id=message.chat.id)
+    except TypeError:
+        await message.answer("Nice try!")
+
 
 
 dp.include_router(router)
