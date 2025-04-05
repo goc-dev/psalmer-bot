@@ -36,7 +36,6 @@ async def handle_command_psalm(message: Message) -> None:
 ```Вступление:
 E/H H7 E A E
 ```
-
 ```Куплет:
        A     G7     C#m
 Есть по|беда |для ме|ня,
@@ -47,12 +46,15 @@ E/H H7 E A E
        E/H   H7     E7   A  E
 Есть по|беда |для ме|ня. |  |
 ```
-
 ```Припев:
-   E   A/H  E        C#/D# G#7  C#m   E7  
-Мы |по-|--бе|дим, мы |по---|--бе|дим, |
-     A     F#    E/H    C#7 F#m  E/H H7  E     A  E
-Крови|ю Свя|того |Агнца |   |мы  |по-|бе-|дим. |  |
+   E   A/H  E         
+Мы |по-|--бе|дим, 
+   C#/D# G#7  C#m   E7
+мы |по---|--бе|дим, |
+     A     F#    E/H    C#7 
+Крови|ю Свя|того |Агнца |   
+F#m  E/H H7  E     A  E
+|мы  |по-|бе-|дим. |  |
 ```
 """
     await message.answer(s_answer, parse_mode = "Markdown")
