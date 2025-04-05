@@ -18,8 +18,7 @@ bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-# @dp.message(CommandStart())
-@router.message(CommandStart)
+@router.message(Command(commands=['start']))
 async def handle_command_start(message: Message) -> None:
     """
     This handler receives messages with `/start` command
@@ -27,8 +26,6 @@ async def handle_command_start(message: Message) -> None:
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     await message.answer(f"Hello, {html.bold(message.from_user.full_name)}! Are you looking for some psalm/chords?")
 
-
-#@dp.message_handler(commands = ["psalm"])
 @router.message(Command(commands=["psalm"]))
 async def handle_command_psalm(message: Message) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
