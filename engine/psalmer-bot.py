@@ -16,7 +16,7 @@ PSALMER_BOT_TOKEN = getenv("PSALMER_BOT_TOKEN")
 # All handlers should be attached to the Router (or Dispatcher)
 bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
-rt = Router()
+router = Router()
 
 # @dp.message(CommandStart())
 @router.message(commands=["start"])
@@ -58,7 +58,7 @@ async def echo_handler(message: Message) -> None:
         await message.answer("Nice try!")
 
 
-dp.include_router(rt)
+dp.include_router(router)
 
 
 async def main():
