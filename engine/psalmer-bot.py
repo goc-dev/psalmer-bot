@@ -6,7 +6,7 @@ from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
+from aiogram.filters import CommandStart, Command
 from aiogram.types import Message 
 
 load_dotenv()
@@ -19,7 +19,7 @@ dp = Dispatcher()
 router = Router()
 
 # @dp.message(CommandStart())
-@router.message(commands=["start"])
+@router.message(CommandStart)
 async def handle_command_start(message: Message) -> None:
     """
     This handler receives messages with `/start` command
@@ -29,7 +29,7 @@ async def handle_command_start(message: Message) -> None:
 
 
 #@dp.message_handler(commands = ["psalm"])
-@router.message(commands=["psalm"])
+@router.message(Command(commands=["psalm"]))
 async def handle_command_psalm(message: Message) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
