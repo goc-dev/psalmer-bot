@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import sys
-from os import os, getenv
+import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.client.default import DefaultBotProperties
@@ -11,7 +11,7 @@ from aiogram.types import Message
 
 load_dotenv()
 
-PSALMER_BOT_TOKEN = getenv("PSALMER_BOT_TOKEN")
+PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
 # Debug only:#print(f"Bot token: {PSALMER_BOT_TOKEN}")#exit()
 # All handlers should be attached to the Router (or Dispatcher)
 bot = Bot(token = PSALMER_BOT_TOKEN)
@@ -25,7 +25,11 @@ async def handle_command_start(message: Message) -> None:
     """
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     tg_user_name = message.from_user.full_name
-    await message.answer(f"Hello, *{tg_user_name}*\!\nAre you looking for some psalm/chords?", parse_mode = "MarkdownV2")
+    s_greating = """
+Hello, *{tg_user_name}*
+Are you looking for any psalm/chords?
+"""
+    await message.answer(s_greating, parse_mode = "MarkdownV2")
 
 
 @router.message(Command(commands=["psalm"]))
