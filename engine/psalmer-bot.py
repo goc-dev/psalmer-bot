@@ -25,7 +25,7 @@ async def handle_command_start(message: Message) -> None:
     """
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     tg_user_name = message.from_user.full_name
-    s_greating = """
+    s_greating = f"""
 Hello, *{tg_user_name}*
 Are you looking for any psalm/chords?
 """
