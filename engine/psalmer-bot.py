@@ -1,7 +1,7 @@
 import asyncio
 import logging
 import sys
-from os import getenv
+import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.client.default import DefaultBotProperties
@@ -11,7 +11,7 @@ from aiogram.types import Message
 
 load_dotenv()
 
-PSALMER_BOT_TOKEN = getenv("PSALMER_BOT_TOKEN")
+PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
 # Debug only:#print(f"Bot token: {PSALMER_BOT_TOKEN}")#exit()
 # All handlers should be attached to the Router (or Dispatcher)
 bot = Bot(token = PSALMER_BOT_TOKEN)
@@ -25,41 +25,36 @@ async def handle_command_start(message: Message) -> None:
     """
     # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     tg_user_name = message.from_user.full_name
-    await message.answer(f"Hello, *{tg_user_name}*\!\nAre you looking for some psalm/chords?", parse_mode = "MarkdownV2")
+    s_greating = f"""
+Hello, *{tg_user_name}*
+Are you looking for any psalm/chords?
+"""
+    await message.answer(s_greating, parse_mode = "MarkdownV2")
 
 
 @router.message(Command(commands=["psalm"]))
 async def handle_command_psalm(message: Message) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
-    s_answer = """
-*Есть победа*
-Тональность: `E`
-```Вступление
-E/H H7 E A E
-```
-```Куплет
-       A     G7     C#m
-Есть по|беда |для ме|ня,
-       E     F#7    Hsus H7
-Есть по|беда |для те|бя  |
-          E       Hm   A       D7
-Есть в Кро|ви Свят|ого |Агнца, |
-       E/H   H7     E7   A  E
-Есть по|беда |для ме|ня. |  |
-```
-```Припев
-   E   A/H  E         
-Мы |по-|--бе|дим, 
-   C#/D# G#7  C#m   E7
-мы |по---|--бе|дим, |
-     A     F#    E/H    C#7 
-Крови|ю Свя|того |Агнца |   
-F#m  E/H H7  E     A  E
-|мы  |по-|бе-|дим. |  |
-```
-"""
-    await message.answer(s_answer, parse_mode = "Markdown")
+    v_book_dir = '../hymnal/goc-2021/'
+    v_song_id  = 66
+    v_song_idx = str(v_song_id)
+    v_song_file = ''
+
+    # Iterate through files in the directory and find matching prefix
+    for filename in os.listdir(v_book_dir):
+        print(v_book_dir, filename)
+        if filename.startswith(v_song_idx):
+            v_song_file = os.path.join( v_book_dir, filename)
+            break
+
+    if '' == v_song_file:
+        v_song_text_md = 'File not found'
+    else:
+        with open( v_song_file, 'r') as song_file:
+            v_song_text_md = song_file.read()
+
+    await message.answer(v_song_text_md, parse_mode = "MarkdownV2")
 
 
 @router.message()
