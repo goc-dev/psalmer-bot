@@ -43,8 +43,9 @@ async def handle_command_psalm(message: Message) -> None:
 
     # Iterate through files in the directory and find matching prefix
     for filename in os.listdir(v_book_dir):
+        print(v_book_dir, filename)
         if filename.startswith(v_song_idx):
-            v_song_file = filename
+            v_song_file = os.path.join( v_book_dir, filename)
             break
 
     if '' == v_song_file:
@@ -53,7 +54,7 @@ async def handle_command_psalm(message: Message) -> None:
         with open( v_song_file, 'r') as song_file:
             v_song_text_md = song_file.read()
 
-    await message.answer(v_song_text_md, parse_mode = "Markdown")
+    await message.answer(v_song_text_md, parse_mode = "MarkdownV2")
 
 
 @router.message()
