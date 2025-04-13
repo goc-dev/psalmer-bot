@@ -24,7 +24,8 @@ dp = Dispatcher()
 router = Router()
 
 async def send_markdown_message( message: TgMessage, text: str):
-    v_escaped_md = MD_V2.escape_text( text)
+    #v_escaped_md = MD_V2.escape_text( text)
+    v_escaped_md = text
     await message.answer( v_escaped_md, parse_mode = "MarkdownV2")
 
 
@@ -43,7 +44,7 @@ async def handle_command_psalm(message: TgMessage) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
     FileHymnFinder.set_home_dir( HYMNAL_HOME_DIR)
-    v_hf = FileHymnFinder('goc_2021')
+    v_hf = FileHymnFinder('goc-2021')
     v_hymn_id = 66
     v_hymn_text_md = v_hf.text_by_id(v_hymn_id)
 
