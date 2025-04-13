@@ -22,7 +22,7 @@ bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
-async def send_markdown_message( message: TgMessage, text):
+async def send_markdown_message( message: TgMessage, text: str):
     await message.answer( text, parse_mode = "MarkdownV2")
 
 
@@ -33,7 +33,7 @@ async def handle_command_start(message: TgMessage) -> None:
     """
     tg_user_name = message.from_user.full_name
     s_greeting = UtilMessage.hello_user( tg_user_name)
-    await send_markdown_message(s_greeting)
+    await send_markdown_message( message, s_greeting)
 
 
 @router.message(Command(commands=["psalm"]))
