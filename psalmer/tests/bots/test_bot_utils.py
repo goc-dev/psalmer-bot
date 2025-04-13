@@ -1,5 +1,6 @@
 import pytest
 from bots.utils.messages import Message
+from bots.utils.markdown import MarkdownV2
 
 def test_greeting():
     v_user_name = 'Abc Def'
@@ -16,3 +17,10 @@ def test_help_info():
     assert '/start' in v_help_text
     assert '/help' in v_help_text
     assert '/psalm' in v_help_text
+
+
+def test_escape_md_V2():
+    v_text_src = "*Bold* - _italic_ : new [123]"
+    v_text_tobe = r"\*Bold\* \- \_italic\_ : new \[123\]"
+    v_text_asis = MarkdownV2.escape_text(v_text_src)
+    assert v_text_asis == v_text_tobe

@@ -10,6 +10,7 @@ from aiogram.filters import CommandStart, Command
 from aiogram.types import Message as TgMessage
 
 from bots.utils.messages import Message as UtilMessage
+from bots.utils.markdown import MarkdownV2 as MD_V2
 from hymnal.finder import FileHymnFinder
 
 load_dotenv()
@@ -23,7 +24,8 @@ dp = Dispatcher()
 router = Router()
 
 async def send_markdown_message( message: TgMessage, text: str):
-    await message.answer( text, parse_mode = "MarkdownV2")
+    v_escaped_md = MD_V2.escape_text( text)
+    await message.answer( v_escaped_md, parse_mode = "MarkdownV2")
 
 
 @router.message(Command(commands=['start']))
