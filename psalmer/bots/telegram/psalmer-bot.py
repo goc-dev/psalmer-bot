@@ -7,58 +7,58 @@ from aiogram import Bot, Dispatcher, Router, html
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.filters import CommandStart, Command
-from aiogram.types import Message 
+from aiogram.types import Message as TgMessage
+
+from bots.utils.messages import Message as UtilMessage
+from bots.utils.markdown import MarkdownV2 as MD_V2
+from hymnal.finder import FileHymnFinder
 
 load_dotenv()
 
 PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
-# Debug only:#print(f"Bot token: {PSALMER_BOT_TOKEN}")#exit()
+HYMNAL_HOME_DIR = os.getenv("HYMNAL_HOME_DIR")
+
 # All handlers should be attached to the Router (or Dispatcher)
 bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
+async def send_markdown_message( message: TgMessage, text: str):
+    #v_escaped_md = MD_V2.escape_text( text)
+    v_escaped_md = text
+    await message.answer( v_escaped_md, parse_mode = "MarkdownV2")
+
+
 @router.message(Command(commands=['start']))
-async def handle_command_start(message: Message) -> None:
+async def handle_command_start(message: TgMessage) -> None:
     """
     This handler receives messages with `/start` command
     """
-    # Bot instance: `bot.send_message(chat_id=message.chat.id, ...)`
     tg_user_name = message.from_user.full_name
-    s_greating = f"""
-Hello, *{tg_user_name}*
-Are you looking for any psalm/chords?
-"""
-    await message.answer(s_greating, parse_mode = "MarkdownV2")
+    s_greeting = UtilMessage.hello_user( tg_user_name)
+    await send_markdown_message( message, s_greeting)
 
 
 @router.message(Command(commands=["psalm"]))
-async def handle_command_psalm(message: Message) -> None:
+async def handle_command_psalm(message: TgMessage) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
-    v_book_dir = '../hymnal/goc-2021/'
-    v_song_id  = 66
-    v_song_idx = str(v_song_id)
-    v_song_file = ''
+    FileHymnFinder.set_home_dir( HYMNAL_HOME_DIR)
+    v_hf = FileHymnFinder('goc-2021')
+    v_hymn_id = 66
+    v_hymn_text_md = v_hf.text_by_id(v_hymn_id)
 
-    # Iterate through files in the directory and find matching prefix
-    for filename in os.listdir(v_book_dir):
-        print(v_book_dir, filename)
-        if filename.startswith(v_song_idx):
-            v_song_file = os.path.join( v_book_dir, filename)
-            break
+    await send_markdown_message( message, v_hymn_text_md)
 
-    if '' == v_song_file:
-        v_song_text_md = 'File not found'
-    else:
-        with open( v_song_file, 'r') as song_file:
-            v_song_text_md = song_file.read()
 
-    await message.answer(v_song_text_md, parse_mode = "MarkdownV2")
+@router.message(Command(commands=["help", "info"]))
+async def handle_command_help(message: TgMessage) -> None:
+    s_info = UtilMessage.help_info()
+    await send_markdown_message( message, s_info)
 
 
 @router.message()
-async def handle_non_command(message: Message) -> None:
+async def handle_non_command(message: TgMessage) -> None:
     """
     Handler of all non-command messages, it forward the received message back to the sender
 
@@ -69,7 +69,7 @@ async def handle_non_command(message: Message) -> None:
     try:
         await message.send_copy(chat_id=message.chat.id)
     except TypeError:
-        await message.answer("Nice try!")
+        await message.answer(f"ERROR: unknown command: {message.text}")
 
 
 
