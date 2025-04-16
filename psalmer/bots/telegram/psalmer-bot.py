@@ -62,7 +62,7 @@ async def handle_command_psalm(message: TgMessage) -> None:
 @router.message(lambda msg: msg.text and msg.text.isdigit())
 async def handler_int(message: TgMessage):
     v_hymn_id = int(message.text)
-    await handle_command_psalm(message, v_hymn_id)
+    await find_and_send_psalm(message, v_hymn_id)
 
 
 @router.message(Command(commands=["help", "info"]))
