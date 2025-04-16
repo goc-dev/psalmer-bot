@@ -47,7 +47,7 @@ class FileHymnFinder(HymnFinder):
                 break
 
         if '' == v_hymn_file:
-            v_song_text_md = 'File not found'
+            v_song_text_md = f'File not found: {i_id}'
         else:
             with open( v_hymn_file, 'r') as song_file:
                 v_song_text_md = song_file.read()
@@ -60,5 +60,5 @@ class DbHymnFinder(HymnFinder):
     def __init__(self, i_hymnal_code: str):
         super(i_hymnal_code)
 
-    def by_id(i_id:int) -> str:
-        return f"TODO: implement DB fetching by id: {i_id}"
+    def text_by_id(i_id:int) -> str:
+        return f"TODO: SELECT hymn_text FROM hymnal_text WHERE hymn_id = {i_id}"
