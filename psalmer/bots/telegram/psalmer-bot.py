@@ -39,25 +39,30 @@ async def handle_command_start(message: TgMessage) -> None:
     await send_markdown_message( message, s_greeting)
 
 
+async def find_and_send_psalm( message: TgMessage, i_hymn_id: int) -> None:
+    FileHymnFinder.set_home_dir( HYMNAL_HOME_DIR)
+    v_hf = FileHymnFinder('goc-2021')
+    v_hymn_text_md = v_hf.text_by_id(i_hymn_id)
+
+    await send_markdown_message( message, v_hymn_text_md)
+
+
+
 @router.message(Command(commands=["psalm"]))
 async def handle_command_psalm(message: TgMessage) -> None:
     """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
     args = message.text.split(maxsplit = 1)
-
+    
     v_hymn_id = int(args[1]) if len(args) > 1 and args[1].isdigit() else None
 
-    FileHymnFinder.set_home_dir( HYMNAL_HOME_DIR)
-    v_hf = FileHymnFinder('goc-2021')
-    #v_hymn_id = 66
-    v_hymn_text_md = v_hf.text_by_id(v_hymn_id)
-
-    await send_markdown_message( message, v_hymn_text_md)
+    await find_and_send_psalm( message, v_hymn_id)
 
 
 @router.message(lambda msg: msg.text and msg.text.isdigit())
 async def handler_int(message: TgMessage):
-    await handle_command_psalm(message)
+    v_hymn_id = int(message.text)
+    await handle_command_psalm(message, v_hymn_id)
 
 
 @router.message(Command(commands=["help", "info"]))
