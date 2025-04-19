@@ -3,3 +3,4 @@ venv/
 pytest.ini
 .env
 install/*
+psalmer/bin/env.sh
