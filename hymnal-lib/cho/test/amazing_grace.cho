@@ -1,0 +1,49 @@
+{title: Amazing Grace}
+{artist: John Newton}
+{key: G}
+{tempo: 70}
+
+{start_of_grid}
+|: G G7 | C G |
+| D . | G . |
+| G . | C G |
+| Em . | D G :| 
+{end_of_grid}
+
+{start_of_tab}
+-|---|--|--|--|---|--|-|--|--
+-|-0-|0-|--|--|-0-|0-|0|3-|--
+-|0-0|-2|0-|--|0-0|-2|-|--|--
+0|---|--|-2|00|---|--|-|--|--
+{end_of_tab}
+
+{sov 1}
+A[G]mazing Gr[G7]ace! (how [C]sweet the [G]sound)
+That [D]saved a wretch like [G]me!
+I [G]once was lost, but [C]now am [G]found,
+Was [Em]blind, but [D]now I [G]see.
+{eov}
+
+{sov 2}
+Through [G]many d[G7]angers, t[C]oils and sn[G]ares
+We h[D]ave already c[D]ome
+'Twas gr[G]ace hath br[G7]ought us s[C]afe thus f[G]ar
+And gr[Em]ace w[D]ill l[D]ead us h[G]ome
+{eov}
+
+{sov label="3"}
+The [G]Lord hath [G7]promised [C]good to [G]me,
+His [D]word my hope se[D]cures;
+He [G]will my [G7]shield and [C]portion [G]be
+As long as [D7]life en[G]dures.
+{eov}
+
+{start_of_abc}
+X:1
+T:Amazing Grace
+M:3/4
+L:1/4
+K:G
+d | g2 (b/2 g/2) | b2 a | g2 e |
+| d2 d | g2 (b/2 e/2) | b2 a | d2 | 
+{end_of_abc}
