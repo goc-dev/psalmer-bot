@@ -5,7 +5,7 @@ from bots.utils.markdown import MarkdownV2
 def test_greeting():
     v_user_name = 'Abc Def'
     v_message_tobe = """
-Hello, *Abc Def*!
+Hello, *Abc Def*\!
 Are you looking for any psalm/chords?
 """
     v_message_asis = Message.hello_user( v_user_name)
