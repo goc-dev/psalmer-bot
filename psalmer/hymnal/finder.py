@@ -34,7 +34,7 @@ class FileHymnFinder(HymnFinder):
     def text_by_id(self, i_id: int) -> str:
         """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
 
-        v_hymnal_dir = self.hymnal_dir() #'../hymnal/goc-2021/'
+        v_hymnal_dir = self.hymnal_dir() 
         v_hymn_id  = i_id
         v_hymn_idx = str(v_hymn_id)
         v_hymn_file = ''
