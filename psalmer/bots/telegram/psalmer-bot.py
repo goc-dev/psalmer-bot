@@ -136,7 +136,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `0.1.2025-0419-1940`"
+    s_version = "*Version*: `0.1.2025-0429-1030`"
     await send_markdown_message( message, s_version)
 
 
