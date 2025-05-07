@@ -57,9 +57,6 @@ class HymnalLib:
         if v_hymnal_meta:
             ff = FileHymnFinder( v_hymnal_meta)
             v_hymn_list = ff.hymn_list()
-            ### v_hymn_list += [ HymnMeta( i_hymnal_id,   1, 'md', "One") ]
-            ### v_hymn_list += [ HymnMeta( i_hymnal_id,  66, 'md', "Est pobeda") ]
-            ### v_hymn_list += [ HymnMeta( i_hymnal_id, 127, 'md', "Nas v nebe zhdet") ]
         else:
             logger.debug(f'Hymnal Index: no hymnal meta for {i_hymnal_id}')
 

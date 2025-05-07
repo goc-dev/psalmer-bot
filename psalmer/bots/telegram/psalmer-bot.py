@@ -100,7 +100,7 @@ async def process_hymnal_selection(callback_query: CallbackQuery):
 
         v_msg = f"Hymnal: {s_id}"
         for hymn in hymn_list:
-            title = f'{hymn.id}: {hymn.title} ({hymn.fmt})'
+            title = f'{hymn.title} ({hymn.id}: {hymn.fmt})'
             v_bldr.row( InlineKeyboardButton( text=title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 
         v_kbd = v_bldr.as_markup()
@@ -136,7 +136,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `0.1.2025-0419-1940`"
+    s_version = "*Version*: `0.1.2025-0429-1030`"
     await send_markdown_message( message, s_version)
 
 
