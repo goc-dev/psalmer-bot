@@ -14,4 +14,5 @@ Are you looking for any psalm/chords?
 /start \- to get a greeting
 /help \- to get a detailed list of commands
 /psalm \- search psalm/hymn by parameters
+/list \- list of Hymnals (Song Books)
 """
