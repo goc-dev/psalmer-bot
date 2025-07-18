@@ -39,7 +39,7 @@ class FileHymnFinder(HymnFinder):
 
     def hymnal_path(self) -> Path:
         v_home:Path = self.get_home_path()
-        v_meta = self.get_hymnal_meta()
+        v_meta:HymnalMeta = self.get_hymnal_meta()
         logger.debug( f"HymnalPath: meta: {v_meta}")
         v_code:Path = Path(v_meta.code)
         v_home = v_home / v_code
@@ -55,26 +55,33 @@ class FileHymnFinder(HymnFinder):
             logger.warning( f'Path does not exist: {v_path}')
             return hymns
         
-        for filename in self.hymnal_path().iterdir():
+        for filename in v_path.iterdir():
+            if not filename.is_file():
+                continue
+
             # filename: "idx.title.ext"
             
-            hymn_idx, hymn_title, hymn_fmt = filename.name.split('.')
-            hymn_id = int(hymn_idx)
+            #hymn_idx, hymn_title, hymn_fmt = filename.name.split('.')
+            #hymn_id = int(hymn_idx)
+            v_hymn_id:int    = filename.stat().st_ino
+            v_hymn_title:str = filename.stem
+            v_hymn_fmt:str   = filename.suffix
+
             hymnal_meta = self.get_hymnal_meta()
-            hymn_meta = HymnMeta( hymnal_meta.id, hymn_id, hymn_fmt, hymn_title)
+            hymn_meta = HymnMeta( hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
             
-            if i_hymn_id is not None:
-                if i_hymn_id == hymn_meta.id:
-                    hymns.append(hymn_meta)
+            if i_hymn_id is not None or i_hymn_id == hymn_meta.id:
+                hymns.append(hymn_meta)
+                if i_hymn_id is not None:
                     break
-            else:
-                hymns.append( hymn_meta )
 
         return hymns
     
 
     def hymn_to_file(self, hymn: HymnMeta) -> Path:
-        fn = f'{hymn.id}.{hymn.title}.{hymn.fmt}'
+        """Assemble a file name from its meta"""
+        #fn = f'{hymn.id}.{hymn.title}.{hymn.fmt}'
+        fn = f'{hymn.title}.{hymn.fmt}'
         fqn = self.hymnal_path() / fn
         return fqn
 
