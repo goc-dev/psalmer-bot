@@ -35,13 +35,11 @@ class HymnalLib:
             for row in reader:
                 logger.debug(row)
                 v_hymnal_meta = HymnalMeta( int(row['ID']), row['CODE'], row['TITLE'])
-                if i_hymnal_id is None:
+                if i_hymnal_id is None \
+                or v_hymnal_meta.id == i_hymnal_id:
                     v_list += [v_hymnal_meta]
-                else:
-                    if v_hymnal_meta.id == i_hymnal_id:
-                        v_list = [v_hymnal_meta]
-                        break                    
-                
+                    if i_hymnal_id is not None:
+                        break
         return v_list
     
 

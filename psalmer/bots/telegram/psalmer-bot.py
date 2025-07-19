@@ -95,12 +95,14 @@ async def process_hymnal_selection(callback_query: CallbackQuery):
     v_bldr = InlineKeyboardBuilder()
 
     try:
-        hymnal_id = int( s_id)    
+        hymnal_id = int( s_id)
+        hymnal_list = HymnalLib.hymnal_list( hymnal_id)
+        hymnal = hymnal_list[0]
         hymn_list = HymnalLib.hymnal_index( hymnal_id)
 
-        v_msg = f"Hymnal: {s_id}"
+        v_msg = f"{hymnal.title}"
         for hymn in hymn_list:
-            title = f'{hymn.title} ({hymn.id}: {hymn.fmt})'
+            title = f'{hymn.title}' # ...' ({hymn.id}: {hymn.fmt})'
             v_bldr.row( InlineKeyboardButton( text=title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 
         v_kbd = v_bldr.as_markup()
@@ -126,6 +128,7 @@ async def process_hymn_selection(callback_query: CallbackQuery):
 @router.message(Command(commands=["help", "info"]))
 async def handle_command_help(message: TgMessage) -> None:
     s_info = UtilMessage.help_info()
+    print(f'DBG:help-msg:{s_info}')
     await send_markdown_message( message, s_info)
 
 
