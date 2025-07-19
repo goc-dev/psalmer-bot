@@ -19,7 +19,8 @@ class HymnFinder(ABC):
         pass
 
     @abstractmethod
-    def hymn_list() -> list[HymnMeta]:
+    def hymn_list(i_hymn_id:int = None) -> list[HymnMeta]:
+        """List all of hymns of the hymnal, or 1 specific hymn"""
         pass
 
 #------------------
@@ -59,18 +60,14 @@ class FileHymnFinder(HymnFinder):
             if not filename.is_file():
                 continue
 
-            # filename: "idx.title.ext"
-            
-            #hymn_idx, hymn_title, hymn_fmt = filename.name.split('.')
-            #hymn_id = int(hymn_idx)
-            v_hymn_id:int    = filename.stat().st_ino
+            v_hymn_id   :int = filename.stat().st_ino
             v_hymn_title:str = filename.stem
-            v_hymn_fmt:str   = filename.suffix
+            v_hymn_fmt  :str = filename.suffix.lstrip('.')
 
             hymnal_meta = self.get_hymnal_meta()
             hymn_meta = HymnMeta( hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
             
-            if i_hymn_id is not None or i_hymn_id == hymn_meta.id:
+            if i_hymn_id is None or i_hymn_id == hymn_meta.id:
                 hymns.append(hymn_meta)
                 if i_hymn_id is not None:
                     break
@@ -80,7 +77,6 @@ class FileHymnFinder(HymnFinder):
 
     def hymn_to_file(self, hymn: HymnMeta) -> Path:
         """Assemble a file name from its meta"""
-        #fn = f'{hymn.id}.{hymn.title}.{hymn.fmt}'
         fn = f'{hymn.title}.{hymn.fmt}'
         fqn = self.hymnal_path() / fn
         return fqn
