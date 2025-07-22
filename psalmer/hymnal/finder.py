@@ -23,6 +23,11 @@ class HymnFinder(ABC):
         """List all of hymns of the hymnal, or 1 specific hymn"""
         pass
 
+    @abstractmethod
+    def spread_by_buckets():
+        """each bucket: start, end, size"""
+        pass
+
 #------------------
 class FileHymnFinder(HymnFinder):
     __hymnal_home_path:Path = Path()

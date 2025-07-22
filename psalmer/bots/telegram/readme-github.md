@@ -2,7 +2,7 @@ cp .env.template .env
 
 mcedit .env
 
-export PYTHONPATH=/workspaces/plsamer-bot/psalmer
+export PYTHONPATH=/workspaces/psalmer-bot/psalmer
 
 pip install -r requirements.txt
 

@@ -12,3 +12,9 @@ class HymnMeta:
     id: int
     fmt: str
     title: str
+
+@dataclass
+class TitleBucketMeta:
+    start: str
+    end: str
+    size: int
