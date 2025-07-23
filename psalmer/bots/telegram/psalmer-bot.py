@@ -86,8 +86,9 @@ async def handle_command_list(message: TgMessage) -> None:
     v_kbd = get_hymnal_keyboard()
     await message.answer( v_msg, reply_markup=v_kbd)
 
-#--- "hymnal:ID"
+
 #--- Data format: "hymnal:ID"
+# TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
     s_id = callback_query.data.split(':')[1]
@@ -139,7 +140,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `0.1.2025-0522-0900`"
+    s_version = "*Version*: `1.0.2025-0723-0825`"
     await send_markdown_message( message, s_version)
 
 
