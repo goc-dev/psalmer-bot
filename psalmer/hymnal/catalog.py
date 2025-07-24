@@ -1,6 +1,6 @@
 from pathlib import Path
 import csv
-from hymnal.meta import HymnalMeta, HymnMeta
+from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta
 from hymnal.finder import FileHymnFinder
 
 import logging
@@ -18,6 +18,7 @@ class HymnalLib:
         cls.__list_file = cls.__lib_path / 'hymnals.csv'
         print(f"Hymnal Lib  is in: {cls.__lib_path} ({cls.__lib_path.exists()})")
         print(f"Hymnal list is in: {cls.__list_file} ({cls.__list_file.exists()})")
+        return cls
         
 
     @classmethod
@@ -41,14 +42,54 @@ class HymnalLib:
                     if i_hymnal_id is not None:
                         break
         return v_list
-    
+
 
     @classmethod
-    def hymnal_index(cls, i_hymnal_id: int) -> list[HymnMeta]:
+    def hymnal_meta(cls, i_hymnal_id:int) -> HymnalMeta:
+        v_hymnal_list_1 = cls.hymnal_list(i_hymnal_id)
+        return v_hymnal_list_1[0]
+
+    
+    @classmethod
+    def range_list(cls, i_hymnal_id: int, i_range_id: int = None) -> list[RangeMeta]:
+        """CSV: HYMNAL_ID(int), ID(int), STARTING_PREFIX(str), ENDING_PREFIX(str)"""
+        # get the filename for ranges
+        v_hymnal_1 = HymnalLib.hymnal_list(i_hymnal_id)
+        v_hymnal_meta = v_hymnal_1[0]
+        v_hymnal_code = v_hymnal_meta.code
+        v_hymn_ranges_file = f'hymn-ranges.{v_hymnal_code}.csv'
+        v_hymn_ranges_path = cls.__lib_path / v_hymn_ranges_file
+
+        v_range_list = []
+
+        with open( v_hymn_ranges_path, newline='', encoding='utf-8') as csv_ranges:
+            reader = csv.DictReader(csv_ranges)
+            for row in reader:
+                logger.debug(row)
+                v_range_meta = RangeMeta( int(row['HYMNAL_ID']), int(row['RANGE_ID']), row['STARTING_PREFIX'], row['ENDING_PREFIX'])
+                if i_range_id is None \
+                or v_range_meta.id == i_range_id:
+                    v_range_list += [v_range_meta]
+                    if i_range_id is None:
+                        break
+        return v_range_list
+
+
+    @classmethod
+    def range_meta(cls, i_hymnal_id:int, i_range_id:int) -> RangeMeta:
+        v_range_list_1 = cls.range_list(i_hymnal_id, i_range_id)
+        return v_range_list_1[0]
+
+
+    @classmethod
+    def hymnal_index(cls, i_hymnal_id: int, i_range_id: int = None) -> list[HymnMeta]:
         """Read the content of hymnal by its ID"""
 
         v_hymnal_1 = HymnalLib.hymnal_list( i_hymnal_id)
         v_hymnal_meta = v_hymnal_1[0]
+
+        v_range_1 = HymnalLib.range_list(i_hymnal_id, i_range_id)
+        v_range_meta = v_range_1[0]
 
         v_hymn_list = []
 

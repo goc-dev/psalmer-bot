@@ -19,14 +19,10 @@ class HymnFinder(ABC):
         pass
 
     @abstractmethod
-    def hymn_list(i_hymn_id:int = None) -> list[HymnMeta]:
-        """List all of hymns of the hymnal, or 1 specific hymn"""
+    def hymn_list(i_hymn_id:int = None, i_range_id:int = None) -> list[HymnMeta]:
+        """List all of v_hymns of the hymnal, or 1 specific hymn"""
         pass
 
-    @abstractmethod
-    def spread_by_buckets():
-        """each bucket: start, end, size"""
-        pass
 
 #------------------
 class FileHymnFinder(HymnFinder):
@@ -52,14 +48,14 @@ class FileHymnFinder(HymnFinder):
         return v_home
     
 
-    def hymn_list(self, i_hymn_id: int = None) -> list[HymnMeta]:
-        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}]')
-        hymns:list[HymnMeta] = []
+    def hymn_list(self, i_hymn_id: int = None, i_range_id: int = None) -> list[HymnMeta]:
+        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_id:{i_range_id}]')
+        v_hymns:list[HymnMeta] = []
 
         v_path = self.hymnal_path()
         if not v_path.exists():
             logger.warning( f'Path does not exist: {v_path}')
-            return hymns
+            return v_hymns
         
         for filename in v_path.iterdir():
             if not filename.is_file():
@@ -68,16 +64,24 @@ class FileHymnFinder(HymnFinder):
             v_hymn_id   :int = filename.stat().st_ino
             v_hymn_title:str = filename.stem
             v_hymn_fmt  :str = filename.suffix.lstrip('.')
-
-            hymnal_meta = self.get_hymnal_meta()
-            hymn_meta = HymnMeta( hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
             
-            if i_hymn_id is None or i_hymn_id == hymn_meta.id:
-                hymns.append(hymn_meta)
+            v_hymnal_meta = self.get_hymnal_meta()
+
+            # check range:
+            if i_range_id is not None:
+                # TODO: add logic here
+                pass
+
+            # check hymn:
+            if i_hymn_id is None or i_hymn_id == v_hymn_id:
+                
+                v_hymn_meta = HymnMeta( v_hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
+                v_hymns.append(v_hymn_meta)
+                
                 if i_hymn_id is not None:
                     break
 
-        return hymns
+        return v_hymns
     
 
     def hymn_to_file(self, hymn: HymnMeta) -> Path:
@@ -91,12 +95,12 @@ class FileHymnFinder(HymnFinder):
         """This handler is for the command `/psalm #id to print text/chords of Psalm#id"""
         logger.debug(f'text-by-id:{i_id}')
         # Iterate through files in the directory and find matching prefix
-        hymns = self.hymn_list(i_id)
+        v_hymns = self.hymn_list(i_id)
 
         v_song_text_md = f'File not found: {i_id}'
-        if hymns is not None:
-            hymn_meta = hymns[0]
-            hymn_file = self.hymn_to_file(hymn_meta)
+        if v_hymns is not None:
+            v_hymn_meta = v_hymns[0]
+            hymn_file = self.hymn_to_file(v_hymn_meta)
             with open( hymn_file, 'r') as song_file:
                 v_song_text_md = song_file.read() 
 

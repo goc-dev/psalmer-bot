@@ -91,18 +91,47 @@ async def handle_command_list(message: TgMessage) -> None:
 # TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
-    s_id = callback_query.data.split(':')[1]
-    print(f"DBG: [s_id:{s_id}]")
+    hymnal_id_str = callback_query.data.split(':')[1]
+    print(f"DBG: [hymnal_id:{hymnal_id_str}]")
     v_bldr = InlineKeyboardBuilder()
 
     try:
-        hymnal_id = int( s_id)
-        hymnal_list = HymnalLib.hymnal_list( hymnal_id)
+        hymnal_id = int(hymnal_id_str)
+        hymnal_list = HymnalLib.hymnal_list(hymnal_id)
         hymnal = hymnal_list[0]
-        hymn_list = HymnalLib.hymnal_index( hymnal_id)
+        hymn_range_list = HymnalLib.hymnal_ranges(hymnal_id)
+
+        v_msg = f"{hymnal.title}"
+        for hymn_range in hymn_range_list:
+            title = f'{hymn_range.starting_prefix}...{hymn_range.ending_prefix}'
+            v_bldr.row(InlineKeyboardButton(text=title, callback_data=f'hymnrange:{hymnal_id}:{hymn_range.id}'))
+
+        v_kbd = v_bldr.as_markup()
+        await callback_query.message.answer(v_msg, reply_markup=v_kbd)
+        await callback_query.answer()
+    except ValueError as e:
+        print(f'Error: Bad Hymnal ID: {hymnal_id_str}')
+
+
+#--- Data format: "hymnrange:HYMNAL_ID:RANGE_ID"
+@dp.callback_query(lambda c: c.data.startswith('hymnrange:'))
+async def process_range_selection(callback_query: CallbackQuery):
+    _, s_hymnal_id, s_range_id = callback_query.data.split(':')
+    logger.debug(f'Data:{s_hymnal_id}:{s_range_id}')
+    v_bldr = InlineKeyboardBuilder()
+
+    try:
+        hymnal_id = int( s_hymnal_id)
+        range_id = int( s_range_id)
+        
+        hymnal_list_1 = HymnalLib.hymnal_list( hymnal_id)
+        hymnal = hymnal_list_1[0]
+
+        hymn_list = HymnalLib.hymnal_index( hymnal_id, range_id)
 
         v_msg = f"{hymnal.title}"
         for hymn in hymn_list:
+            if title.upper().startswith()
             title = f'{hymn.title}' # ...' ({hymn.id}: {hymn.fmt})'
             v_bldr.row( InlineKeyboardButton( text=title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 
