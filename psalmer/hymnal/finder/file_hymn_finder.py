@@ -1,30 +1,12 @@
-from abc import ABC, abstractmethod
 from pathlib import Path
 from hymnal.meta import HymnalMeta, HymnMeta
+
+from .hymn_finder import HymnFinder
 
 import logging
 
 logger = logging.getLogger('psalmer-bot')
 
-#------------------
-class HymnFinder(ABC):
-    def __init__(self, i_hymnal_meta: HymnalMeta):
-        self.__hymnal_meta = i_hymnal_meta
-
-    def get_hymnal_meta(self) -> HymnalMeta:
-        return self.__hymnal_meta
-    
-    @abstractmethod
-    def text_by_id(self, i_id: int) -> str:
-        pass
-
-    @abstractmethod
-    def hymn_list(i_hymn_id:int = None, i_range_id:int = None) -> list[HymnMeta]:
-        """List all of v_hymns of the hymnal, or 1 specific hymn"""
-        pass
-
-
-#------------------
 class FileHymnFinder(HymnFinder):
     __hymnal_home_path:Path = Path()
 
@@ -105,13 +87,4 @@ class FileHymnFinder(HymnFinder):
                 v_song_text_md = song_file.read() 
 
         return v_song_text_md
-    
-    
-
-#--------------
-class DbHymnFinder(HymnFinder):
-    def __init__(self, i_hymnal_code: str):
-        super(i_hymnal_code)
-
-    def text_by_id(i_id:int) -> str:
-        return f"TODO: SELECT hymn_text FROM hymnal_text WHERE hymn_id = {i_id}"
+ 
