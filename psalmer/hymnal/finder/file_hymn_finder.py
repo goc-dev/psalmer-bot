@@ -32,6 +32,7 @@ class FileHymnFinder(HymnFinder):
 
     def hymn_list(self, i_hymn_id: int = None, i_range_id: int = None) -> list[HymnMeta]:
         logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_id:{i_range_id}]')
+        v_hymnal_meta = self.get_hymnal_meta()
         v_hymns:list[HymnMeta] = []
 
         v_path = self.hymnal_path()
@@ -47,7 +48,6 @@ class FileHymnFinder(HymnFinder):
             v_hymn_title:str = filename.stem
             v_hymn_fmt  :str = filename.suffix.lstrip('.')
             
-            v_hymnal_meta = self.get_hymnal_meta()
 
             # check range:
             if i_range_id is not None:
