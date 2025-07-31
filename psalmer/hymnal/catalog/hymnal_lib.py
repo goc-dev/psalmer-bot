@@ -16,10 +16,13 @@ class HymnalLib:
     async def init(cls, i_lib_dir: str):
         cls.__lib_path = Path(i_lib_dir)
         cls.__list_file = cls.__lib_path / 'hymnals.csv'
-        print(f"Hymnal Lib  is in: {cls.__lib_path} ({cls.__lib_path.exists()})")
-        print(f"Hymnal list is in: {cls.__list_file} ({cls.__list_file.exists()})")
+        print(f"Hymnal Lib  is in: {cls.__lib_path} (Check: {cls.__lib_path.exists()})")
+        print(f"Hymnal list is in: {cls.__list_file} (Check: {cls.__list_file.exists()})")
         return cls
         
+    @classmethod
+    def get_lib_path():
+        return cls.__lib_path
 
     @classmethod
     def hymnal_list(cls, i_hymnal_id: int = None) -> list[HymnalMeta]:

@@ -1,5 +1,5 @@
 from pathlib import Path
-from hymnal.meta import HymnalMeta, HymnMeta
+from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta
 
 from .hymn_finder import HymnFinder
 
@@ -34,6 +34,9 @@ class FileHymnFinder(HymnFinder):
         logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_id:{i_range_id}]')
         v_hymnal_meta = self.get_hymnal_meta()
         v_hymns:list[HymnMeta] = []
+        v_range_meta = None
+        if i_range_id is not None:
+            v_range_meta = HymnalLib.range_meta( v_hymnal_meta.id, i_range_id)
 
         v_path = self.hymnal_path()
         if not v_path.exists():
@@ -47,17 +50,17 @@ class FileHymnFinder(HymnFinder):
             v_hymn_id   :int = filename.stat().st_ino
             v_hymn_title:str = filename.stem
             v_hymn_fmt  :str = filename.suffix.lstrip('.')
-            
+
+            v_hymn_meta = HymnMeta( v_hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
+
 
             # check range:
-            if i_range_id is not None:
-                # TODO: add logic here
-                pass
-
+            if i_range_id is not None \
+            and v_range_meta.starting_prefix <= v_hymn_title.upper() <= v_range_meta.ending_prefix:
+                v_hymns.append(v_hymn_meta)
             # check hymn:
-            if i_hymn_id is None or i_hymn_id == v_hymn_id:
+            elif i_hymn_id is None or i_hymn_id == v_hymn_id:
                 
-                v_hymn_meta = HymnMeta( v_hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
                 v_hymns.append(v_hymn_meta)
                 
                 if i_hymn_id is not None:

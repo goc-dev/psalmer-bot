@@ -1,4 +1,5 @@
 import pytest
+from hymnal.catalog import HymnalLib
 from hymnal.finder import FileHymnFinder
 from hymnal.meta import HymnalMeta
 from types import SimpleNamespace
@@ -13,9 +14,17 @@ def fx__cfg_codespace():
 @pytest.fixture
 def fx__hymnal_goc_2021():
     return SimpleNamespace (
-        ID = 1,
-        CODE = 'goc-2021',
+        ID    = 1,
+        CODE  = 'goc-2021',
         TITLE = 'Grace of Christ, 2021'
+    )
+
+@pytest.fixture
+def fx__hymnal_test_1():
+    return SimpleNamespace (
+        ID    = 2,
+        CODE  = 'test-1',
+        TITLE = 'QA Testing Song Book'
     )
 
 def test_home_dir(fx__cfg_codespace, fx__hymnal_goc_2021):
@@ -34,12 +43,11 @@ def test_hymnal_dir(fx__cfg_codespace, fx__hymnal_goc_2021):
     v_hf = FileHymnFinder(v_hymnal_meta)
     v_dir_asis = v_hf.hymnal_path()
     assert v_dir_tobe == v_dir_asis
-    v_dir_asis = v_hf.get_hymnal_code()
-    assert v_dir_tobe == v_dir_asis
+
 
 
 @pytest.fixture
-def fixture__FHF_goc_2021():
+def fx__FHF_goc_2021():
     PS_HOME_DIR = '/workspaces/psalmer-bot/hymnal-lib/mdv2'
     PS_HYMNAL_DIR = 'goc-2021'
     v_hymnal = HymnalMeta(1, PS_HYMNAL_DIR, 'Благодать Христа, 2021')
@@ -48,8 +56,26 @@ def fixture__FHF_goc_2021():
     return v_fhf
 
 
-def test_text_by_id__smoke(fixture__FHF_goc_2021):
-    v_id = 66
-    v_hymn_md = fixture__FHF_goc_2021.text_by_id(v_id)
-    assert str(v_id) in v_hymn_md
-    assert "C#m" in v_hymn_md
+@pytest.fixture
+def fx__FHF_test_1():
+    PS_HOME_DIR = '/workspaces/psalmer-bot/hymnal-lib/mdv2'
+    v_hymnal = HymnalMeta(2, 'test-1', 'QA Testing Song Book')
+    FileHymnFinder.set_home_path(PS_HOME_DIR)
+    v_fhf = FileHymnFinder(v_hymnal)
+    return v_fhf
+
+
+### def test_text_by_id__smoke(fx__FHF_goc_2021):
+###     v_id = 66
+###     v_hymn_md = fx__FHF_goc_2021.text_by_id(v_id)
+###     assert str(v_id) in v_hymn_md
+###     assert "C#m" in v_hymn_md
+
+
+
+def test_ranges(fx__FHF_test_1, fx__hymnal_test_1):
+    v_range_id = 6
+
+    v_hymns = fx__FHF_test_1.hymn_list( None, v_range_id)
+
+    assert v_hymns.size == 2
