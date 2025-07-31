@@ -30,14 +30,11 @@ class FileHymnFinder(HymnFinder):
         return v_home
     
 
-    def hymn_list(self, i_hymn_id: int = None, i_range_id: int = None) -> list[HymnMeta]:
-        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_id:{i_range_id}]')
+    def hymn_list(self, i_hymn_id: int = None, i_range_meta: RangeMeta = None) -> list[HymnMeta]:
+        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_meta:{i_range_meta}')
         v_hymnal_meta = self.get_hymnal_meta()
         v_hymns:list[HymnMeta] = []
-        v_range_meta = None
-        if i_range_id is not None:
-            v_range_meta = HymnalLib.range_meta( v_hymnal_meta.id, i_range_id)
-
+        
         v_path = self.hymnal_path()
         if not v_path.exists():
             logger.warning( f'Path does not exist: {v_path}')
@@ -53,14 +50,15 @@ class FileHymnFinder(HymnFinder):
 
             v_hymn_meta = HymnMeta( v_hymnal_meta.id, v_hymn_id, v_hymn_fmt, v_hymn_title)
 
-
             # check range:
-            if i_range_id is not None \
-            and v_range_meta.starting_prefix <= v_hymn_title.upper() <= v_range_meta.ending_prefix:
+            if i_range_meta is not None \
+            and i_range_meta.starting_prefix <= v_hymn_title.upper() <= i_range_meta.ending_prefix:
+                logger.debug(f'Title "{v_hymn_title}" matches the range:{i_range_meta.starting_prefix}-{i_range_meta.ending_prefix}')
                 v_hymns.append(v_hymn_meta)
             # check hymn:
-            elif i_hymn_id is None or i_hymn_id == v_hymn_id:
-                
+            elif i_hymn_id is None and i_range_meta is None \
+            or i_hymn_id == v_hymn_id:
+                logger.debug(f'Hymn id:{i_hymn_id} | {v_hymn_id} => Append')
                 v_hymns.append(v_hymn_meta)
                 
                 if i_hymn_id is not None:

@@ -13,13 +13,17 @@ class HymnalLib:
     __list_file: Path
 
     @classmethod
-    async def init(cls, i_lib_dir: str):
+    def init(cls, i_lib_dir: str):
         cls.__lib_path = Path(i_lib_dir)
         cls.__list_file = cls.__lib_path / 'hymnals.csv'
         print(f"Hymnal Lib  is in: {cls.__lib_path} (Check: {cls.__lib_path.exists()})")
         print(f"Hymnal list is in: {cls.__list_file} (Check: {cls.__list_file.exists()})")
         return cls
-        
+
+    @classmethod
+    async def init_async(cls, i_lib_dir: str):
+        return cls.init(i_lib_dir)
+
     @classmethod
     def get_lib_path():
         return cls.__lib_path
@@ -73,7 +77,7 @@ class HymnalLib:
                 if i_range_id is None \
                 or v_range_meta.id == i_range_id:
                     v_range_list += [v_range_meta]
-                    if i_range_id is None:
+                    if i_range_id is not None:
                         break
         return v_range_list
 
@@ -91,14 +95,17 @@ class HymnalLib:
         v_hymnal_1 = HymnalLib.hymnal_list( i_hymnal_id)
         v_hymnal_meta = v_hymnal_1[0]
 
-        v_range_1 = HymnalLib.range_list(i_hymnal_id, i_range_id)
-        v_range_meta = v_range_1[0]
+        v_range_meta:RangeMeta | None = None
+
+        if i_range_id is not None:
+            v_range_1 = HymnalLib.range_list(i_hymnal_id, i_range_id)
+            v_range_meta = v_range_1[0]
 
         v_hymn_list = []
 
         if v_hymnal_meta:
             ff = FileHymnFinder( v_hymnal_meta)
-            v_hymn_list = ff.hymn_list()
+            v_hymn_list = ff.hymn_list(i_hymn_id = None, i_range_meta = v_range_meta)
         else:
             logger.debug(f'Hymnal Index: no hymnal meta for {i_hymnal_id}')
 

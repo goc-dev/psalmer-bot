@@ -1,9 +1,15 @@
 import pytest
-from hymnal.catalog import HymnalLib
-from hymnal.finder import FileHymnFinder
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
+logger = logging.getLogger('psalmer-bot')
+
 from hymnal.meta import HymnalMeta
+from hymnal.finder import FileHymnFinder
+from hymnal.catalog import HymnalLib
 from types import SimpleNamespace
 from pathlib import Path
+
 
 @pytest.fixture
 def fx__cfg_codespace():
@@ -74,8 +80,19 @@ def fx__FHF_test_1():
 
 
 def test_ranges(fx__FHF_test_1, fx__hymnal_test_1):
+    v_home_path:Path = fx__FHF_test_1.get_home_path()
+
+    assert v_home_path is not None
+
+    v_hlib:HymnaLib = HymnalLib()
+    v_hlib.init( str(v_home_path))
+
     v_range_id = 6
+    v_range_meta = v_hlib.range_meta(fx__hymnal_test_1.ID, v_range_id)
+    v_hymns = fx__FHF_test_1.hymn_list( None, v_range_meta)
+    assert len(v_hymns) == 1
 
-    v_hymns = fx__FHF_test_1.hymn_list( None, v_range_id)
-
-    assert v_hymns.size == 2
+    v_range_id = 1
+    v_range_meta = v_hlib.range_meta(fx__hymnal_test_1.ID, v_range_id)
+    v_hymns = fx__FHF_test_1.hymn_list( None, v_range_meta)
+    assert len(v_hymns) == 2
