@@ -89,27 +89,45 @@ async def handle_command_list(message: TgMessage) -> None:
 
 #--- Data format: "hymnal:ID"
 # TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
     hymnal_id_str = callback_query.data.split(':')[1]
     print(f"DBG: [hymnal_id:{hymnal_id_str}]")
-    v_bldr = InlineKeyboardBuilder()
 
     try:
         hymnal_id = int(hymnal_id_str)
-        hymnal_meta:HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
+        hymnal_meta: HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
         hymn_range_list = HymnalLib.range_list(hymnal_id)
-
         v_msg = f"{hymnal_meta.title}"
-        for hymn_range in hymn_range_list:
-            title = f'{hymn_range.starting_prefix}...{hymn_range.ending_prefix}'
-            v_bldr.row(InlineKeyboardButton(text=title, callback_data=f'hymnrange:{hymnal_id}:{hymn_range.id}'))
+
+        # ✨ Create all buttons first
+        range_buttons = [
+            InlineKeyboardButton(
+                text=f"{hr.starting_prefix}...{hr.ending_prefix}",
+                callback_data=f"hymnrange:{hymnal_id}:{hr.id}"
+            )
+            for hr in hymn_range_list
+        ]
+
+        # 🔁 Chunk into groups of 3 per row
+        def chunked(seq, n):
+            for i in range(0, len(seq), n):
+                yield seq[i:i + n]
+
+        v_bldr = InlineKeyboardBuilder()
+        for group in chunked(range_buttons, 3):
+            v_bldr.row(*group)
 
         v_kbd = v_bldr.as_markup()
         await callback_query.message.answer(v_msg, reply_markup=v_kbd)
         await callback_query.answer()
+
     except ValueError as e:
-        print(f'Error: Bad Hymnal ID: {hymnal_id_str}')
+        print(f"Error: Bad Hymnal ID: {hymnal_id_str}")
+
 
 
 #--- Data format: "hymnrange:HYMNAL_ID:RANGE_ID"
