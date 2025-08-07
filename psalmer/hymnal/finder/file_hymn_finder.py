@@ -40,7 +40,7 @@ class FileHymnFinder(HymnFinder):
             logger.warning( f'Path does not exist: {v_path}')
             return v_hymns
         
-        for filename in v_path.iterdir():
+        for filename in sorted(v_path.iterdir()):
             if not filename.is_file():
                 continue
 
