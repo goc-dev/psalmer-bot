@@ -27,7 +27,7 @@ router = Router()
 
 @router.startup()
 async def bot_startup():
-    await HymnalLib.init( HYMNAL_HOME_DIR)
+    await HymnalLib.init_async( HYMNAL_HOME_DIR)
     FileHymnFinder.set_home_path( HYMNAL_HOME_DIR)
     print("PsalmerBot is started!")
 
@@ -75,8 +75,8 @@ async def handler_int(message: TgMessage):
 def get_hymnal_keyboard():
     hymnals = HymnalLib.hymnal_list()
     bldr = InlineKeyboardBuilder()
-    for hymnal in hymnals:
-        bldr.row( InlineKeyboardButton( text=hymnal.title, callback_data=f"hymnal:{hymnal.id}"))
+    for hymnal_meta in hymnals:
+        bldr.row( InlineKeyboardButton( text=hymnal_meta.title, callback_data=f"hymnal:{hymnal_meta.id}"))
     return bldr.as_markup()
 
 
@@ -86,24 +86,69 @@ async def handle_command_list(message: TgMessage) -> None:
     v_kbd = get_hymnal_keyboard()
     await message.answer( v_msg, reply_markup=v_kbd)
 
-#--- "hymnal:ID"
+
 #--- Data format: "hymnal:ID"
+# TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
+from aiogram.types import InlineKeyboardButton
+from aiogram.utils.keyboard import InlineKeyboardBuilder
+
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
-    s_id = callback_query.data.split(':')[1]
-    print(f"DBG: [s_id:{s_id}]")
+    hymnal_id_str = callback_query.data.split(':')[1]
+    print(f"DBG: [hymnal_id:{hymnal_id_str}]")
+
+    try:
+        hymnal_id = int(hymnal_id_str)
+        hymnal_meta: HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
+        hymn_range_list = HymnalLib.range_list(hymnal_id)
+        v_msg = f"{hymnal_meta.title}"
+
+        # ✨ Create all buttons first
+        range_buttons = [
+            InlineKeyboardButton(
+                text=f"{hr.starting_prefix}...{hr.ending_prefix}",
+                callback_data=f"hymnrange:{hymnal_id}:{hr.id}"
+            )
+            for hr in hymn_range_list
+        ]
+
+        # 🔁 Chunk into groups of 3 per row
+        def chunked(seq, n):
+            for i in range(0, len(seq), n):
+                yield seq[i:i + n]
+
+        v_bldr = InlineKeyboardBuilder()
+        for group in chunked(range_buttons, 3):
+            v_bldr.row(*group)
+
+        v_kbd = v_bldr.as_markup()
+        await callback_query.message.answer(v_msg, reply_markup=v_kbd)
+        await callback_query.answer()
+
+    except ValueError as e:
+        print(f"Error: Bad Hymnal ID: {hymnal_id_str}")
+
+
+
+#--- Data format: "hymnrange:HYMNAL_ID:RANGE_ID"
+@dp.callback_query(lambda c: c.data.startswith('hymnrange:'))
+async def process_range_selection(callback_query: CallbackQuery):
+    _, s_hymnal_id, s_range_id = callback_query.data.split(':')
+    logger.debug(f'Data:{s_hymnal_id}:{s_range_id}')
     v_bldr = InlineKeyboardBuilder()
 
     try:
-        hymnal_id = int( s_id)
-        hymnal_list = HymnalLib.hymnal_list( hymnal_id)
-        hymnal = hymnal_list[0]
-        hymn_list = HymnalLib.hymnal_index( hymnal_id)
+        hymnal_id = int( s_hymnal_id)
+        range_id = int( s_range_id)
+        
+        hymnal_meta:HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
+        range_meta:RangeMeta = HymnalLib.range_meta(hymnal_id, range_id)
 
-        v_msg = f"{hymnal.title}"
+        hymn_list = HymnalLib.hymnal_index( hymnal_id, range_id)
+
+        v_msg = f"{hymnal_meta.title} ({range_meta.starting_prefix}...{range_meta.ending_prefix})"
         for hymn in hymn_list:
-            title = f'{hymn.title}' # ...' ({hymn.id}: {hymn.fmt})'
-            v_bldr.row( InlineKeyboardButton( text=title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
+            v_bldr.row( InlineKeyboardButton( text=hymn.title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 
         v_kbd = v_bldr.as_markup()
         await callback_query.message.answer(v_msg, reply_markup=v_kbd)
@@ -139,7 +184,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `0.1.2025-0522-0900`"
+    s_version = "*Version*: `1.0.2025-0731-1100`"
     await send_markdown_message( message, s_version)
 
 
