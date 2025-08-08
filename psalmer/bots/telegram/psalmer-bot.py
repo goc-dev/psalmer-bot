@@ -5,7 +5,7 @@ import os
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.filters import Command
-from aiogram.types import Message as TgMessage, InlineKeyboardButton, CallbackQuery
+from aiogram.types import Message as TgMessage, InlineKeyboardButton, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bots.utils.messages import Message as UtilMessage
@@ -25,16 +25,27 @@ bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
+
+def get_main_menu_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="/list"), KeyboardButton(text="/help")],
+            [KeyboardButton(text="/sett"), KeyboardButton(text="/version")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
+
 @router.startup()
 async def bot_startup():
     await HymnalLib.init_async( HYMNAL_HOME_DIR)
     FileHymnFinder.set_home_path( HYMNAL_HOME_DIR)
     print("PsalmerBot is started!")
 
-async def send_markdown_message( message: TgMessage, text: str):
+async def send_markdown_message( message: TgMessage, text: str, reply_markup:ReplyKeyboardMarkup|None = None):
     #v_escaped_md = MD_V2.escape_text( text)
     v_escaped_md = text
-    await message.answer( v_escaped_md, parse_mode = "MarkdownV2")
+    await message.answer( v_escaped_md, parse_mode = "MarkdownV2", reply_markup=reply_markup)
 
 
 @router.message(Command(commands=['start']))
@@ -43,8 +54,10 @@ async def handle_command_start(message: TgMessage) -> None:
     This handler receives messages with `/start` command
     """
     tg_user_name = message.from_user.full_name
-    s_greeting = UtilMessage.hello_user( tg_user_name)
-    await send_markdown_message( message, s_greeting)
+    s_greeting   = UtilMessage.hello_user( tg_user_name)
+    v_main_kbd   = get_main_menu_keyboard()
+    await send_markdown_message( message, s_greeting, v_main_kbd)
+    #await message.answer( s_greeting, reply_markup=v_main_kbd, parse_node="MarkdownV2")
 
 #------- PSALM (FIND) -------
 async def find_and_send_psalm( message: TgMessage, i_hymnal_id: int, i_hymn_id: int) -> None:
@@ -184,7 +197,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `1.0.2025-0731-1100`"
+    s_version = "*Version*: `1.0.2025-0808-1012`"
     await send_markdown_message( message, s_version)
 
 
@@ -201,8 +214,6 @@ async def handle_non_command(message: TgMessage) -> None:
         await message.send_copy(chat_id=message.chat.id)
     except TypeError:
         await message.answer(f"ERROR: unknown command: {message.text}")
-
-
 
 dp.include_router(router)
 
