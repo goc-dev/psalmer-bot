@@ -2,10 +2,13 @@ import asyncio
 import logging
 import sys
 import os
+
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.filters import Command
-from aiogram.types import Message as TgMessage, InlineKeyboardButton, CallbackQuery, ReplyKeyboardMarkup, KeyboardButton
+from aiogram.types import \
+    Message as TgMessage, CallbackQuery, \
+    InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bots.utils.messages import Message as UtilMessage
@@ -24,7 +27,6 @@ logger = logging.getLogger('psalmer-bot')
 bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
-
 
 def get_main_menu_keyboard():
     return ReplyKeyboardMarkup(
@@ -102,8 +104,6 @@ async def handle_command_list(message: TgMessage) -> None:
 
 #--- Data format: "hymnal:ID"
 # TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
-from aiogram.types import InlineKeyboardButton
-from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
