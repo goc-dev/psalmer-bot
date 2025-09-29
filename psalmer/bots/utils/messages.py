@@ -3,7 +3,7 @@ class Message:
     def hello_user(i_user_name:str):
         """Return a greeting message for the specifed user"""
         v_message = f"""
-Hello, *{i_user_name}*\!
+Hello, *{i_user_name}*!
 Are you looking for any psalm/chords?
 """
         return v_message
@@ -11,8 +11,8 @@ Are you looking for any psalm/chords?
     @staticmethod
     def help_info():
         return """
-/start \- to get a greeting
-/help \- to get a detailed list of commands
-/psalm \- search psalm/hymn by parameters
-/list \- list of Hymnals \(Song Books\)
+/start - to get a greeting
+/help - to get a detailed list of commands
+/psalm - search psalm/hymn by parameters
+/list - list of Hymnals \(Song Books\)
 """
