@@ -1,8 +1,8 @@
-HYMNAL_ID,RANGE_ID,STARTING_PREFIX,ENDING_PREFIX
-1,1,А,Г
-1,2,Д,Ж
-1,3,З,Л
-1,4,М,П
-1,5,Р,У
-1,6,Ф,Ч
-1,7,Ш,Я
+HYMNAL_ID,RANGE_ID,STARTING_PREFIX,ENDING_PREFIX,LABEL
+1,1,А,Г,АБВГ
+1,2,Д,Ж,ДЕЁЖ
+1,3,З,Л,ЗИКЛ
+1,4,М,П,МНОП
+1,5,Р,У,РСТУ
+1,6,Ф,Ч,ФХЦЧ
+1,7,Ш,Я,ШЩЭЮЯ

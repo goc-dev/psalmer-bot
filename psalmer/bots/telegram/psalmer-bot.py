@@ -119,7 +119,9 @@ async def process_hymnal_selection(callback_query: CallbackQuery):
         # ✨ Create all buttons first
         range_buttons = [
             InlineKeyboardButton(
-                text=f"{hr.starting_prefix}...{hr.ending_prefix}",
+                text = hr.label \
+                    if hr.label \
+                    else f"{hr.starting_prefix}...{hr.ending_prefix}",
                 callback_data=f"hymnrange:{hymnal_id}:{hr.id}"
             )
             for hr in hymn_range_list
