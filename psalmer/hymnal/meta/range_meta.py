@@ -6,3 +6,4 @@ class RangeMeta:
     id             : int
     starting_prefix: str
     ending_prefix  : str
+    label          : str

@@ -59,7 +59,7 @@ class HymnalLib:
     
     @classmethod
     def range_list(cls, i_hymnal_id: int, i_range_id: int = None) -> list[RangeMeta]:
-        """CSV: HYMNAL_ID(int), ID(int), STARTING_PREFIX(str), ENDING_PREFIX(str)"""
+        """CSV: HYMNAL_ID(int), ID(int), STARTING_PREFIX(str), ENDING_PREFIX(str), LABEL(str)"""
         # get the filename for ranges
         v_hymnal_1 = HymnalLib.hymnal_list(i_hymnal_id)
         v_hymnal_meta = v_hymnal_1[0]
@@ -73,7 +73,13 @@ class HymnalLib:
             reader = csv.DictReader(csv_ranges)
             for row in reader:
                 logger.debug(row)
-                v_range_meta = RangeMeta( int(row['HYMNAL_ID']), int(row['RANGE_ID']), row['STARTING_PREFIX'], row['ENDING_PREFIX'])
+                v_range_meta = RangeMeta( 
+                    int(row['HYMNAL_ID']), 
+                    int(row['RANGE_ID']), 
+                    row['STARTING_PREFIX'], 
+                    row['ENDING_PREFIX'],
+                    row['LABEL']
+                    )
                 if i_range_id is None \
                 or v_range_meta.id == i_range_id:
                     v_range_list += [v_range_meta]
