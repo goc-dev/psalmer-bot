@@ -1,5 +1,5 @@
 from pathlib import Path
-from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta
+from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta, HymnFileType
 
 from .hymn_finder import HymnFinder
 
@@ -21,16 +21,21 @@ class FileHymnFinder(HymnFinder):
     def __init__(self, i_hymnal_meta: HymnalMeta):
         super().__init__(i_hymnal_meta)
 
-    def hymnal_path(self) -> Path:
+    def hymnal_path(self, i_file_type: HymnFileType = HymnFileType.MD_V2) -> Path:
         v_home:Path = self.get_home_path()
         v_meta:HymnalMeta = self.get_hymnal_meta()
         logger.debug( f"HymnalPath: meta: {v_meta}")
         v_code:Path = Path(v_meta.code)
-        v_home = v_home / v_code
+        v_home = v_home / i_file_type / v_code
         return v_home
     
 
-    def hymn_list(self, i_hymn_id: int = None, i_range_meta: RangeMeta = None) -> list[HymnMeta]:
+    def hymn_list(
+        self,
+        i_hymn_id   : int          = None,
+        i_range_meta: RangeMeta    = None,
+        i_file_type : HymnFileType = HymnFileType.MD_V2
+    ) -> list[HymnMeta]:
         logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_meta:{i_range_meta}')
         v_hymnal_meta = self.get_hymnal_meta()
         v_hymns:list[HymnMeta] = []

@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta
+from hymnal.meta import HymnalMeta, RangeMeta, HymnMeta, HymnFileType
 
 class HymnFinder(ABC):
     def __init__(self, i_hymnal_meta: HymnalMeta):
@@ -13,6 +13,10 @@ class HymnFinder(ABC):
         pass
 
     @abstractmethod
-    def hymn_list(i_hymn_id:int = None, i_range_meta:RangeMeta = None) -> list[HymnMeta]:
+    def hymn_list(
+        i_hymn_id:int = None,
+        i_range_meta:RangeMeta = None,
+        i_file_type:str = HymnFileType.MD_V2
+        ) -> list[HymnMeta]:
         """List all of v_hymns of the hymnal, or 1 specific hymn"""
         pass

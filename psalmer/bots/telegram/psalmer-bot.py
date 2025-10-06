@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
@@ -18,7 +19,8 @@ from hymnal.catalog import HymnalLib
 load_dotenv()
 
 PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
-HYMNAL_HOME_DIR   = os.getenv("HYMNAL_HOME_DIR")
+HYMNAL_HOME_DIR   = Path( os.getenv("HYMNAL_HOME_DIR") ).resolve()
+HYMNAL_MDV2_DIR   = Path( os.getenv("HYMNAL_MDV2_DIR") ).resolve()
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger('psalmer-bot')

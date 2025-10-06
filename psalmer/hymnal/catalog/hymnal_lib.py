@@ -40,9 +40,15 @@ class HymnalLib:
 
         with open( cls.__list_file, newline='', encoding='utf-8') as csv_hymnals:
             reader = csv.DictReader(csv_hymnals)
+            
             for row in reader:
                 logger.debug(row)
-                v_hymnal_meta = HymnalMeta( int(row['ID']), row['CODE'], row['TITLE'])
+
+                v_hymnal_meta = HymnalMeta( 
+                    int(row['ID']), 
+                    row['CODE'], 
+                    row['TITLE'])
+
                 if i_hymnal_id is None \
                 or v_hymnal_meta.id == i_hymnal_id:
                     v_list += [v_hymnal_meta]
