@@ -36,7 +36,7 @@ class FileHymnFinder(HymnFinder):
         i_range_meta: RangeMeta    = None,
         i_file_type : HymnFileType = HymnFileType.MD_V2
     ) -> list[HymnMeta]:
-        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_meta:{i_range_meta}')
+        logger.debug(f'hymn_list:[hymn_id:{i_hymn_id}][range_meta:{i_range_meta}]')
         v_hymnal_meta = self.get_hymnal_meta()
         v_hymns:list[HymnMeta] = []
         
@@ -89,7 +89,7 @@ class FileHymnFinder(HymnFinder):
         if v_hymns is not None:
             v_hymn_meta = v_hymns[0]
             hymn_file = self.hymn_to_file(v_hymn_meta)
-            with open( hymn_file, 'r') as song_file:
+            with open( hymn_file, 'r', encoding='utf-8') as song_file:
                 v_song_text_md = song_file.read() 
 
         return v_song_text_md
