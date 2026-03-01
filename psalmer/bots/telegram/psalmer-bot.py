@@ -2,10 +2,13 @@ import asyncio
 import logging
 import sys
 import os
+
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
 from aiogram.filters import Command
-from aiogram.types import Message as TgMessage, InlineKeyboardButton, CallbackQuery
+from aiogram.types import \
+    Message as TgMessage, CallbackQuery, \
+    InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bots.utils.messages import Message as UtilMessage
@@ -25,16 +28,26 @@ bot = Bot(token = PSALMER_BOT_TOKEN)
 dp = Dispatcher()
 router = Router()
 
+def get_main_menu_keyboard():
+    return ReplyKeyboardMarkup(
+        keyboard=[
+            [KeyboardButton(text="/list"), KeyboardButton(text="/help")],
+            [KeyboardButton(text="/sett"), KeyboardButton(text="/version")]
+        ],
+        resize_keyboard=True,
+        one_time_keyboard=False
+    )
+
 @router.startup()
 async def bot_startup():
-    await HymnalLib.init( HYMNAL_HOME_DIR)
+    await HymnalLib.init_async( HYMNAL_HOME_DIR)
     FileHymnFinder.set_home_path( HYMNAL_HOME_DIR)
     print("PsalmerBot is started!")
 
-async def send_markdown_message( message: TgMessage, text: str):
+async def send_markdown_message( message: TgMessage, text: str, reply_markup:ReplyKeyboardMarkup|None = None):
     #v_escaped_md = MD_V2.escape_text( text)
     v_escaped_md = text
-    await message.answer( v_escaped_md, parse_mode = "MarkdownV2")
+    await message.answer( v_escaped_md, parse_mode = "MarkdownV2", reply_markup=reply_markup)
 
 
 @router.message(Command(commands=['start']))
@@ -43,8 +56,10 @@ async def handle_command_start(message: TgMessage) -> None:
     This handler receives messages with `/start` command
     """
     tg_user_name = message.from_user.full_name
-    s_greeting = UtilMessage.hello_user( tg_user_name)
-    await send_markdown_message( message, s_greeting)
+    s_greeting   = UtilMessage.hello_user( tg_user_name)
+    v_main_kbd   = get_main_menu_keyboard()
+    await send_markdown_message( message, s_greeting, v_main_kbd)
+    #await message.answer( s_greeting, reply_markup=v_main_kbd, parse_node="MarkdownV2")
 
 #------- PSALM (FIND) -------
 async def find_and_send_psalm( message: TgMessage, i_hymnal_id: int, i_hymn_id: int) -> None:
@@ -75,8 +90,8 @@ async def handler_int(message: TgMessage):
 def get_hymnal_keyboard():
     hymnals = HymnalLib.hymnal_list()
     bldr = InlineKeyboardBuilder()
-    for hymnal in hymnals:
-        bldr.row( InlineKeyboardButton( text=hymnal.title, callback_data=f"hymnal:{hymnal.id}"))
+    for hymnal_meta in hymnals:
+        bldr.row( InlineKeyboardButton( text=hymnal_meta.title, callback_data=f"hymnal:{hymnal_meta.id}"))
     return bldr.as_markup()
 
 
@@ -86,22 +101,69 @@ async def handle_command_list(message: TgMessage) -> None:
     v_kbd = get_hymnal_keyboard()
     await message.answer( v_msg, reply_markup=v_kbd)
 
-#--- "hymnal:ID"
+
 #--- Data format: "hymnal:ID"
+# TODO: path: hymnal-list -> letters-index -> hymn-list -> hymn-text
+
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
-    s_id = callback_query.data.split(':')[1]
-    print(f"DBG: [s_id:{s_id}]")
+    hymnal_id_str = callback_query.data.split(':')[1]
+    print(f"DBG: [hymnal_id:{hymnal_id_str}]")
+
+    try:
+        hymnal_id = int(hymnal_id_str)
+        hymnal_meta: HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
+        hymn_range_list = HymnalLib.range_list(hymnal_id)
+        v_msg = f"{hymnal_meta.title}"
+
+        # ✨ Create all buttons first
+        range_buttons = [
+            InlineKeyboardButton(
+                text = hr.label \
+                    if hr.label \
+                    else f"{hr.starting_prefix}...{hr.ending_prefix}",
+                callback_data=f"hymnrange:{hymnal_id}:{hr.id}"
+            )
+            for hr in hymn_range_list
+        ]
+
+        # 🔁 Chunk into groups of 3 per row
+        def chunked(seq, n):
+            for i in range(0, len(seq), n):
+                yield seq[i:i + n]
+
+        v_bldr = InlineKeyboardBuilder()
+        for group in chunked(range_buttons, 3):
+            v_bldr.row(*group)
+
+        v_kbd = v_bldr.as_markup()
+        await callback_query.message.answer(v_msg, reply_markup=v_kbd)
+        await callback_query.answer()
+
+    except ValueError as e:
+        print(f"Error: Bad Hymnal ID: {hymnal_id_str}")
+
+
+
+#--- Data format: "hymnrange:HYMNAL_ID:RANGE_ID"
+@dp.callback_query(lambda c: c.data.startswith('hymnrange:'))
+async def process_range_selection(callback_query: CallbackQuery):
+    _, s_hymnal_id, s_range_id = callback_query.data.split(':')
+    logger.debug(f'Data:{s_hymnal_id}:{s_range_id}')
     v_bldr = InlineKeyboardBuilder()
 
     try:
-        hymnal_id = int( s_id)    
-        hymn_list = HymnalLib.hymnal_index( hymnal_id)
+        hymnal_id = int( s_hymnal_id)
+        range_id = int( s_range_id)
+        
+        hymnal_meta:HymnalMeta = HymnalLib.hymnal_meta(hymnal_id)
+        range_meta:RangeMeta = HymnalLib.range_meta(hymnal_id, range_id)
 
-        v_msg = f"Hymnal: {s_id}"
+        hymn_list = HymnalLib.hymnal_index( hymnal_id, range_id)
+
+        v_msg = f"{hymnal_meta.title} ({range_meta.starting_prefix}...{range_meta.ending_prefix})"
         for hymn in hymn_list:
-            title = f'{hymn.id}: {hymn.title} ({hymn.fmt})'
-            v_bldr.row( InlineKeyboardButton( text=title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
+            v_bldr.row( InlineKeyboardButton( text=hymn.title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 
         v_kbd = v_bldr.as_markup()
         await callback_query.message.answer(v_msg, reply_markup=v_kbd)
@@ -126,6 +188,7 @@ async def process_hymn_selection(callback_query: CallbackQuery):
 @router.message(Command(commands=["help", "info"]))
 async def handle_command_help(message: TgMessage) -> None:
     s_info = UtilMessage.help_info()
+    print(f'DBG:help-msg:{s_info}')
     await send_markdown_message( message, s_info)
 
 
@@ -136,7 +199,7 @@ async def handle_command_sett(message: TgMessage) -> None:
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `0.1.2025-0419-1940`"
+    s_version = "*Version*: `1.0.2025-0808-1012`"
     await send_markdown_message( message, s_version)
 
 
@@ -153,8 +216,6 @@ async def handle_non_command(message: TgMessage) -> None:
         await message.send_copy(chat_id=message.chat.id)
     except TypeError:
         await message.answer(f"ERROR: unknown command: {message.text}")
-
-
 
 dp.include_router(router)
 
