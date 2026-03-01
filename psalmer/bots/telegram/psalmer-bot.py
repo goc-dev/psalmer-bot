@@ -18,7 +18,7 @@ from hymnal.catalog import HymnalLib
 
 load_dotenv()
 
-PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
+PSALMER_BOT_TOKEN = os.getenv("API_TOKEN")
 HYMNAL_HOME_DIR   = Path( os.getenv("HYMNAL_HOME_DIR") ).resolve()
 HYMNAL_MDV2_DIR   = Path( os.getenv("HYMNAL_MDV2_DIR") ).resolve()
 
