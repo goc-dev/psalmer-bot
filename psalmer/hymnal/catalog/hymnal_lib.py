@@ -16,8 +16,11 @@ class HymnalLib:
     def init(cls, i_lib_dir: str):
         cls.__lib_path = Path(i_lib_dir)
         cls.__list_file = cls.__lib_path / 'hymnals.csv'
-        print(f"Hymnal Lib  is in: {cls.__lib_path} (Check: {cls.__lib_path.exists()})")
-        print(f"Hymnal list is in: {cls.__list_file} (Check: {cls.__list_file.exists()})")
+        print(f"Hymnal Lib  is in: {cls.__lib_path} | Check: {cls.__lib_path.exists()}")
+        print(f"Hymnal list is in: {cls.__list_file} | Check: {cls.__list_file.exists()}")
+        for v_subdir in ['txt', 'pdf', 'mdv2', 'mp3']:
+            v_subpath:Path = cls.__lib_path / Path(v_subdir)
+            print(f'Sub-directory: "{v_subdir:<4}" | Check: {v_subpath.exists()}')
         return cls
 
     @classmethod
@@ -40,9 +43,15 @@ class HymnalLib:
 
         with open( cls.__list_file, newline='', encoding='utf-8') as csv_hymnals:
             reader = csv.DictReader(csv_hymnals)
+            
             for row in reader:
                 logger.debug(row)
-                v_hymnal_meta = HymnalMeta( int(row['ID']), row['CODE'], row['TITLE'])
+
+                v_hymnal_meta = HymnalMeta( 
+                    int(row['ID']), 
+                    row['CODE'], 
+                    row['TITLE'])
+
                 if i_hymnal_id is None \
                 or v_hymnal_meta.id == i_hymnal_id:
                     v_list += [v_hymnal_meta]
