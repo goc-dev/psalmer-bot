@@ -2,6 +2,7 @@ import asyncio
 import logging
 import sys
 import os
+from pathlib import Path
 
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, Router, html
@@ -18,7 +19,8 @@ from hymnal.catalog import HymnalLib
 load_dotenv()
 
 PSALMER_BOT_TOKEN = os.getenv("PSALMER_BOT_TOKEN")
-HYMNAL_HOME_DIR   = os.getenv("HYMNAL_HOME_DIR")
+HYMNAL_HOME_DIR   = Path( os.getenv("HYMNAL_HOME_DIR") ).resolve()
+HYMNAL_MDV2_DIR   = Path( os.getenv("HYMNAL_MDV2_DIR") ).resolve()
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger('psalmer-bot')
@@ -127,7 +129,7 @@ async def process_hymnal_selection(callback_query: CallbackQuery):
             for hr in hymn_range_list
         ]
 
-        # 🔁 Chunk into groups of 3 per row
+        # Chunk into groups of 3 per row
         def chunked(seq, n):
             for i in range(0, len(seq), n):
                 yield seq[i:i + n]
@@ -161,7 +163,12 @@ async def process_range_selection(callback_query: CallbackQuery):
 
         hymn_list = HymnalLib.hymnal_index( hymnal_id, range_id)
 
-        v_msg = f"{hymnal_meta.title} ({range_meta.starting_prefix}...{range_meta.ending_prefix})"
+        v_range_label = range_meta.label \
+            if range_meta.label \
+            else f'{range_meta.starting_prefix}...{range_meta.ending_prefix}'
+        
+        v_msg = f"{hymnal_meta.title} ({v_range_label})"
+        
         for hymn in hymn_list:
             v_bldr.row( InlineKeyboardButton( text=hymn.title, callback_data=f"hymn:{hymnal_id}:{hymn.id}"))
 

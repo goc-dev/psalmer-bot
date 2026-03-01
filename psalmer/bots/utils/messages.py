@@ -11,8 +11,8 @@ Are you looking for any psalm/chords?
     @staticmethod
     def help_info():
         return """
-/start - to get a greeting
-/help - to get a detailed list of commands
-/psalm - search psalm/hymn by parameters
-/list - list of Hymnals \(Song Books\)
+/start to get a greeting
+/help to get a detailed list of commands
+/psalm to search psalm/hymn by parameters
+/list to list of Hymnals \(Song Books\)
 """

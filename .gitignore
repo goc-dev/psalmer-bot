@@ -4,3 +4,4 @@ pytest.ini
 .env
 install/*
 psalmer/bin/env.sh
+psalmer/ai-aux/*
