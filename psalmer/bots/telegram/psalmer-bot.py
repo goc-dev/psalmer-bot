@@ -13,6 +13,7 @@ from aiogram.types import \
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 
 from bots.utils.messages import Message as UtilMessage
+from bots.utils.markdown import MarkdownV2 as MD_V2
 from hymnal.finder import FileHymnFinder
 from hymnal.catalog import HymnalLib
 
@@ -20,7 +21,6 @@ load_dotenv()
 
 PSALMER_BOT_TOKEN = os.getenv("API_TOKEN")
 HYMNAL_HOME_DIR   = Path( os.getenv("HYMNAL_HOME_DIR") ).resolve()
-HYMNAL_MDV2_DIR   = Path( os.getenv("HYMNAL_MDV2_DIR") ).resolve()
 
 logging.basicConfig(level=logging.DEBUG, stream=sys.stdout)
 logger = logging.getLogger('psalmer-bot')
@@ -33,8 +33,8 @@ router = Router()
 def get_main_menu_keyboard():
     return ReplyKeyboardMarkup(
         keyboard=[
-            [KeyboardButton(text="/list"), KeyboardButton(text="/help")],
-            [KeyboardButton(text="/sett"), KeyboardButton(text="/version")]
+            [KeyboardButton(text="/list"), KeyboardButton(text="/help")]
+            # [KeyboardButton(text="/sett"), KeyboardButton(text="/version")]
         ],
         resize_keyboard=True,
         one_time_keyboard=False
@@ -44,12 +44,14 @@ def get_main_menu_keyboard():
 async def bot_startup():
     await HymnalLib.init_async( HYMNAL_HOME_DIR)
     FileHymnFinder.set_home_path( HYMNAL_HOME_DIR)
-    print("PsalmerBot is started!")
+    logger.info("PsalmerBot is started!")
 
-async def send_markdown_message( message: TgMessage, text: str, reply_markup:ReplyKeyboardMarkup|None = None):
-    #v_escaped_md = MD_V2.escape_text( text)
-    v_escaped_md = text
-    await message.answer( v_escaped_md, parse_mode = "MarkdownV2", reply_markup=reply_markup)
+async def send_markdown_message( message: TgMessage, \
+    text: str, \
+    reply_markup:ReplyKeyboardMarkup|None = None, \
+    escape_md:bool = True):
+    v_text = MD_V2.escape_text( text) if escape_md else text 
+    await message.answer( v_text, parse_mode = "MarkdownV2", reply_markup=reply_markup)
 
 
 @router.message(Command(commands=['start']))
@@ -58,9 +60,10 @@ async def handle_command_start(message: TgMessage) -> None:
     This handler receives messages with `/start` command
     """
     tg_user_name = message.from_user.full_name
+    tg_user_name = MD_V2.escape_text( tg_user_name)
     s_greeting   = UtilMessage.hello_user( tg_user_name)
     v_main_kbd   = get_main_menu_keyboard()
-    await send_markdown_message( message, s_greeting, v_main_kbd)
+    await send_markdown_message( message, s_greeting, v_main_kbd, escape_md=False)
     #await message.answer( s_greeting, reply_markup=v_main_kbd, parse_node="MarkdownV2")
 
 #------- PSALM (FIND) -------
@@ -110,7 +113,7 @@ async def handle_command_list(message: TgMessage) -> None:
 @dp.callback_query(lambda c: c.data.startswith('hymnal:'))
 async def process_hymnal_selection(callback_query: CallbackQuery):
     hymnal_id_str = callback_query.data.split(':')[1]
-    print(f"DBG: [hymnal_id:{hymnal_id_str}]")
+    logger.debug(f"[hymnal_id:{hymnal_id_str}]")
 
     try:
         hymnal_id = int(hymnal_id_str)
@@ -143,7 +146,7 @@ async def process_hymnal_selection(callback_query: CallbackQuery):
         await callback_query.answer()
 
     except ValueError as e:
-        print(f"Error: Bad Hymnal ID: {hymnal_id_str}")
+        logger.error(f"Error: Bad Hymnal ID: {hymnal_id_str}")
 
 
 
@@ -176,7 +179,7 @@ async def process_range_selection(callback_query: CallbackQuery):
         await callback_query.message.answer(v_msg, reply_markup=v_kbd)
         await callback_query.answer()
     except ValueError as e:
-        print(f"Error: Bad Hymnal ID: {s_id}")
+        logger.error(f"Bad Hymnal ID: {s_id}")
 
 #--- "hymn:ID"
 #--- format: "hymn:HYMNAL_ID:HYMN_ID"
@@ -195,20 +198,24 @@ async def process_hymn_selection(callback_query: CallbackQuery):
 @router.message(Command(commands=["help", "info"]))
 async def handle_command_help(message: TgMessage) -> None:
     s_info = UtilMessage.help_info()
-    print(f'DBG:help-msg:{s_info}')
-    await send_markdown_message( message, s_info)
+    logger.debug(f'help-msg:{s_info}')
+    await send_markdown_message( message, s_info, escape_md = False)
 
 
 @router.message(Command(commands=['settings','sett']))
 async def handle_command_sett(message: TgMessage) -> None:
-    s_sett = "Settings: _nothing set yet_"
-    await send_markdown_message( message, s_sett)
+    s_sett = UtilMessage.setting_info()
+    await send_markdown_message( message, s_sett, escape_md = False)
 
 @router.message(Command(commands=['version']))
 async def handle_command_version(message: TgMessage) -> None:
-    s_version = "*Version*: `1.0.2025-0808-1012`"
-    await send_markdown_message( message, s_version)
+    s_version = UtilMessage.version_info()
+    await send_markdown_message( message, s_version, escape_md = False)
 
+@router.message(Command(commands=['reloadlib']))
+async def handle_command_reloadlib(message: TgMessage) -> None:
+    HymnalLib.reload_lib()
+    await message.answer("Library reloaded")
 
 @router.message()
 async def handle_non_command(message: TgMessage) -> None:
