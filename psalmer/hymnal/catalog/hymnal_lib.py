@@ -16,11 +16,11 @@ class HymnalLib:
     def init(cls, i_lib_dir: str):
         cls.__lib_path = Path(i_lib_dir)
         cls.__list_file = cls.__lib_path / 'hymnals.csv'
-        print(f"Hymnal Lib  is in: {cls.__lib_path} | Check: {cls.__lib_path.exists()}")
-        print(f"Hymnal list is in: {cls.__list_file} | Check: {cls.__list_file.exists()}")
+        logger.debug(f"Hymnal Lib  is in: {cls.__lib_path} | Check: {cls.__lib_path.exists()}")
+        logger.debug(f"Hymnal list is in: {cls.__list_file} | Check: {cls.__list_file.exists()}")
         for v_subdir in ['txt', 'pdf', 'mdv2', 'mp3']:
             v_subpath:Path = cls.__lib_path / Path(v_subdir)
-            print(f'Sub-directory: "{v_subdir:<4}" | Check: {v_subpath.exists()}')
+            logger.debug(f'Sub-directory: "{v_subdir:<4}" | Check: {v_subpath.exists()}')
         return cls
 
     @classmethod
@@ -37,7 +37,7 @@ class HymnalLib:
 
         # TODO: keep content in-memory to not read from file each time
 
-        print(f"Hymnal list: filter by id: {i_hymnal_id}")
+        logger.debug(f"Hymnal list: filter by id: {i_hymnal_id}")
 
         v_list=[]
 
